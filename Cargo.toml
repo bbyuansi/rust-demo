@@ -7,3 +7,4 @@ authors = ["bbyuansi <bbyuansi@gmail.com>"]
 iron = "~0.6"
 rustc-serialize = "~0.3"
 rand = "~0.5"
+router = "~0.6"
