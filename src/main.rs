@@ -1,54 +1,64 @@
-extern crate iron;
-extern crate rustc_serialize;
-extern crate rand;
-extern crate router;
+extern crate hyper;
+extern crate futures;
 
-use iron::prelude::*;
-use iron::status;
-use iron::mime::Mime;
-use rustc_serialize::json;
-use rand::Rng;
-use router::Router;
+use hyper::{Body, Request, Response, Server};
+use hyper::rt::{self, Future};
+use hyper::service::service_fn;
+use futures::future;
+use hyper::{Method, StatusCode};
+use futures::Stream;
+use hyper::Chunk;
 
-#[derive(RustcEncodable)]
-struct Greeting {
-    msg: String,
-    status: i32,
-}
+type Boxfut = Box<Future<Item=Response<Body>, Error=hyper::Error> + Send>;
 
-fn get_greeting(req: &mut Request) -> IronResult<Response> {
-    let (lang, status) = pick_response("bbyyss".to_string());
-    let greeting = Greeting { msg: lang, status: status };
-    let out = json::encode(&greeting).unwrap();
+fn echo(req: Request<Body>) -> Boxfut {
+    let mut response = Response::new(Body::empty());
 
-    println!("{:?}", req);
-    let content_type = "application/json".parse::<Mime>().unwrap();
-    Ok(Response::with((content_type, status::Ok, out)))
-}
+    match (req.method(), req.uri().path()) {
+        (&Method::GET, "/") => {
+            *response.body_mut() = Body::from("Try POSTing data to /echo")
+        }
+        (&Method::POST, "/echo") => {
+            *response.body_mut() = req.into_body()
+        }
+        (&Method::POST, "/echo/uppercase") => {
+            let mapping = req.into_body()
+                .map(|chunk| {
+                    chunk.iter()
+                        .map(|byte| byte.to_ascii_uppercase())
+                        .collect::<Vec<u8>>()
+                });
+            *response.body_mut() = Body::wrap_stream(mapping)
+        }
+        (&Method::POST, "/echo/reverse") => {
+            let reversed = req.into_body()
+                .concat2()
+                .map(move |chunk| {
+                    let body = chunk.iter()
+                        .rev()
+                        .cloned()
+                        .collect::<Vec<u8>>();
+                    *response.body_mut() = Body::from(body);
+                    response
+                });
+            return Box::new(reversed);
+        }
+        _ => {
+            *response.status_mut() = StatusCode::NOT_FOUND
+        }
+    }
 
-fn pick_response(name: String) -> (String, i32) {
-    let num = rand::thread_rng().gen_range(1, 4);
-
-    let lang = match num {
-        1 => format!("hello {}!", name),
-        2 => format!("how are you {}?", name),
-        3 => format!("how old are you, {}?", name),
-        _ => format!("you are not {}, get out!", name)
-    };
-
-    (lang.to_string(), num)
+    Box::new(future::ok(response))
 }
 
 fn main() {
-    // router
-    let mut router = Router::new();
-    router.get("/greeting", get_greeting, "index");
-    Iron::new(router).http("localhost:3000").unwrap();
-    // basic
-    // Iron::new(|_: &mut Request| {
-    // println!("{:?}", pick_response());
-    // let content_type = "application/json".parse::<Mime>().unwrap();
-    // let greeting = Greeting { msg: "heheheda".to_string(), status: 1};
-    // Ok(Response::with((content_type, status::Ok, json::encode(&greeting).unwrap())))
-    // }).http("localhost:3000").unwrap();
+    let phrase: &'static [u8] = b"hello, world";
+    let addr = ([127, 0, 0, 1], 3000).into();
+
+    let server = Server::bind(&addr)
+        .serve(||service_fn(echo))
+        .map_err(|e| eprintln!("server error: {:?}!", e));
+    println!("listen on http://{}", addr);
+
+    rt::run(server)
 }
