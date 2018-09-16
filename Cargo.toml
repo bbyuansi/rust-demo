@@ -2,9 +2,10 @@
 name = "rust_demo"
 version = "0.1.0"
 authors = ["bbyuansi <bbyuansi@gmail.com>"]
+description = "Simple web application write by rust ^_^!"
 
 [dependencies]
-hyper = "~0.12"
-futures = "~0.1"
-rustc-serialize = "~0.3"
-rand = "~0.5"
+chrono = "~0.4"
+
+[dependencies.nickel]
+git = "https://github.com/nickel-org/nickel.rs.git"

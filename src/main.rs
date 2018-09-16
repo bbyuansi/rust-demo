@@ -1,64 +1,45 @@
-extern crate hyper;
-extern crate futures;
+extern crate chrono;
+#[macro_use]
+extern crate nickel;
 
-use hyper::{Body, Request, Response, Server};
-use hyper::rt::{self, Future};
-use hyper::service::service_fn;
-use futures::future;
-use hyper::{Method, StatusCode};
-use futures::Stream;
-use hyper::Chunk;
+use nickel::{Nickel, HttpRouter};
+use std::io::prelude::*;
+use std::fs::File;
+use std::io;
+use chrono::*;
+use std::collections::HashMap;
 
-type Boxfut = Box<Future<Item=Response<Body>, Error=hyper::Error> + Send>;
 
-fn echo(req: Request<Body>) -> Boxfut {
-    let mut response = Response::new(Body::empty());
+fn hello_world() -> String {
+    "hello, world".to_string()
+}
 
-    match (req.method(), req.uri().path()) {
-        (&Method::GET, "/") => {
-            *response.body_mut() = Body::from("Try POSTing data to /echo")
-        }
-        (&Method::POST, "/echo") => {
-            *response.body_mut() = req.into_body()
-        }
-        (&Method::POST, "/echo/uppercase") => {
-            let mapping = req.into_body()
-                .map(|chunk| {
-                    chunk.iter()
-                        .map(|byte| byte.to_ascii_uppercase())
-                        .collect::<Vec<u8>>()
-                });
-            *response.body_mut() = Body::wrap_stream(mapping)
-        }
-        (&Method::POST, "/echo/reverse") => {
-            let reversed = req.into_body()
-                .concat2()
-                .map(move |chunk| {
-                    let body = chunk.iter()
-                        .rev()
-                        .cloned()
-                        .collect::<Vec<u8>>();
-                    *response.body_mut() = Body::from(body);
-                    response
-                });
-            return Box::new(reversed);
-        }
-        _ => {
-            *response.status_mut() = StatusCode::NOT_FOUND
-        }
-    }
+fn show_time() {
+    let time: DateTime<Local> = Local::now();
+    println!("now is {}", time);
+}
 
-    Box::new(future::ok(response))
+fn log_message(filename: &'static str, message: &'static [u8]) -> io::Result<()> {
+    let mut f = try!(File::create(filename));
+    try!(f.write_all(message));
+    Ok(())
 }
 
 fn main() {
-    let phrase: &'static [u8] = b"hello, world";
-    let addr = ([127, 0, 0, 1], 3000).into();
+    let mut server = Nickel::new();
 
-    let server = Server::bind(&addr)
-        .serve(||service_fn(echo))
-        .map_err(|e| eprintln!("server error: {:?}!", e));
-    println!("listen on http://{}", addr);
+//    match log_message("aa.log", b"something logs") {
+//        Ok(_) => println!("aa.log created!"),
+//        Err(_) => println!("file created failed"),
+//    }
 
-    rt::run(server)
+    show_time();
+
+    server.get("/", middleware! {|_, response|
+        let mut data = HashMap::new();
+        data.insert("name", "biyuansi");
+        return response.render("resource/templates/hello.html", &data);
+    });
+
+    server.listen("127.0.0.1:3000");
 }
