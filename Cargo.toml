@@ -6,6 +6,5 @@ description = "Simple web application write by rust ^_^!"
 
 [dependencies]
 chrono = "~0.4"
+nickel = "~0.10"
 
-[dependencies.nickel]
-git = "https://github.com/nickel-org/nickel.rs.git"

@@ -1,45 +1,53 @@
-extern crate chrono;
-#[macro_use]
-extern crate nickel;
+#[derive(Debug)]
+struct Nil;
 
-use nickel::{Nickel, HttpRouter};
-use std::io::prelude::*;
-use std::fs::File;
-use std::io;
-use chrono::*;
-use std::collections::HashMap;
+#[derive(Debug)]
+struct Pair(i32, i32);
 
-
-fn hello_world() -> String {
-    "hello, world".to_string()
+#[derive(Debug)]
+struct Point {
+    x: f32,
+    y: f32,
 }
 
-fn show_time() {
-    let time: DateTime<Local> = Local::now();
-    println!("now is {}", time);
+#[allow(dead_code)]
+#[derive(Debug)]
+struct Rectangle {
+    p1: Point,
+    p2: Point,
 }
 
-fn log_message(filename: &'static str, message: &'static [u8]) -> io::Result<()> {
-    let mut f = try!(File::create(filename));
-    try!(f.write_all(message));
-    Ok(())
+fn rect_area(rect: Rectangle) -> f32 {
+    let Rectangle {p1: my_p1, p2: my_p2} = rect;
+    let Point { x: my_x, y: my_y} = my_p1;
+    my_x * my_y / 2f32
+}
+
+fn square(p: Point, x1: f32) -> Rectangle {
+
 }
 
 fn main() {
-    let mut server = Nickel::new();
+    let point: Point = Point { x: 100f32, y: 200f32 };
+    println!("point is x: {}, y: {}", point.x, point.y);
 
-//    match log_message("aa.log", b"something logs") {
-//        Ok(_) => println!("aa.log created!"),
-//        Err(_) => println!("file created failed"),
-//    }
+    let Point {x: my_x, y: my_y} = point;
+    println!("{}, {}", my_x, my_y);
 
-    show_time();
+    let _rectangle = Rectangle {
+        p1: Point {x: my_x, y: my_y},
+        p2: point
+    };
+    println!("{:#?}", _rectangle);
 
-    server.get("/", middleware! {|_, response|
-        let mut data = HashMap::new();
-        data.insert("name", "biyuansi");
-        return response.render("resource/templates/hello.html", &data);
-    });
+    let _nil = Nil;
+    println!("{:#?}", _nil);
 
-    server.listen("127.0.0.1:3000");
+    let pair = Pair(1, 100);
+    println!("{:#?}", pair);
+
+    let Pair(integer, deicimal) = pair;
+    println!("{}, {}", integer, deicimal);
+
+    println!("rectangle is {}", rect_area(_rectangle));
 }

@@ -145,7 +145,7 @@ dependencies = [
 [[package]]
 name = "nickel"
 version = "0.10.1"
-source = "git+https://github.com/nickel-org/nickel.rs.git#d7c3093f8f949073a94d26bc94c3ef69797890cb"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "groupable 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "hyper 0.10.13 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -225,7 +225,7 @@ name = "rust_demo"
 version = "0.1.0"
 dependencies = [
  "chrono 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "nickel 0.10.1 (git+https://github.com/nickel-org/nickel.rs.git)",
+ "nickel 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -367,7 +367,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum mime 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "ba626b8a6de5da682e1caa06bdb42a335aee5a84db8e5046a3e8ab17ba0a3ae0"
 "checksum modifier 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "41f5c9112cb662acd3b204077e0de5bc66305fa8df65c8019d5adb10e9ab6e58"
 "checksum mustache 0.8.2 (registry+https://github.com/rust-lang/crates.io-index)" = "ddb004e419334fc9172d0a5ff91c0770bdd6239091b0b343eb5926101f0a7d13"
-"checksum nickel 0.10.1 (git+https://github.com/nickel-org/nickel.rs.git)" = "<none>"
+"checksum nickel 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)" = "22b40e35b9f46a076dcbd8193125cea0e4130b1c015f68655038010f3e826e04"
 "checksum num-integer 0.1.39 (registry+https://github.com/rust-lang/crates.io-index)" = "e83d528d2677f0518c570baf2b7abdcf0cd2d248860b68507bdcb3e91d4c0cea"
 "checksum num-traits 0.2.6 (registry+https://github.com/rust-lang/crates.io-index)" = "0b3a5d7cc97d6d30d8b9bc8fa19bf45349ffe46241e8816f50f62f6d6aaabee1"
 "checksum num_cpus 1.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c51a3322e4bca9d212ad9a158a02abc6934d005490c054a2778df73a70aa0a30"
