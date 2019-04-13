@@ -54,7 +54,7 @@ impl Pair {
 }
 
 
-fn methods() {
+fn fn_methods() {
     let reactangle = Reactangle {
         p1: Point::origin(),
         p2: Point::new(40_f32, 50_f32),
